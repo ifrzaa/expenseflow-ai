@@ -4,9 +4,10 @@ import Auth from "./Auth";
 import ExpenseList from "./components/ExpenseList";
 import Dashboard from "./components/Dashboard";
 import Insights from "./components/Insights";
+import ThemeToggle from "./components/ThemeToggle";
 import { auth } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { Moon, Sun, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 function App() {
   const [user, setUser] = useState<any>(null);
@@ -20,7 +21,10 @@ function App() {
   const [selectedMonthYear, setSelectedMonthYear] = useState<string>(
     String(new Date().getFullYear())
   );
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+  const savedTheme = localStorage.getItem("theme");
+  return savedTheme === "dark" ? "dark" : "light";
+});
 
   const themes = {
     light: {
@@ -40,9 +44,13 @@ function App() {
 
   // ✅ Theme handling
   useEffect(() => {
-    if (theme === "dark") document.body.classList.add("dark");
-    else document.body.classList.remove("dark");
+  if (theme === "dark") document.body.classList.add("dark");
+  else document.body.classList.remove("dark");
+
+  // 🧩 Save user preference
+  localStorage.setItem("theme", theme);
   }, [theme]);
+
 
   // ✅ Auth listener
   useEffect(() => {
@@ -57,50 +65,6 @@ function App() {
   const handleLogout = async () => {
     await signOut(auth);
     setUser(null);
-  };
-
-  // ✅ Animated Theme Toggle
-  const ThemeToggle = () => {
-    const isDark = theme === "dark";
-    return (
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        onClick={() => setTheme(isDark ? "light" : "dark")}
-        className={`relative w-16 h-8 flex items-center rounded-full transition-colors duration-500 overflow-hidden ${
-          isDark ? "bg-[#505081]" : "bg-gray-300"
-        }`}
-      >
-        {isDark && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0.3, 0.8, 0.3] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="absolute inset-0 rounded-full bg-indigo-400 blur-md"
-          />
-        )}
-
-        <motion.div
-          layout
-          animate={{
-            x: isDark ? 32 : 0,
-            boxShadow: isDark
-              ? "0 0 12px 3px rgba(129,140,248,0.6)"
-              : "0 0 10px 2px rgba(250,204,21,0.6)",
-            backgroundColor: isDark ? "#EAEAEA" : "#FFFFFF",
-          }}
-          transition={{
-            type: "spring",
-            stiffness: 500,
-            damping: 25,
-          }}
-          className={`w-6 h-6 rounded-full flex items-center justify-center relative z-10 ${
-            isDark ? "text-[#0F0E47]" : "text-yellow-500"
-          }`}
-        >
-          {isDark ? <Moon size={16} /> : <Sun size={16} />}
-        </motion.div>
-      </motion.button>
-    );
   };
 
   // ✅ Loading state
@@ -150,14 +114,15 @@ function App() {
           borderColor: theme === "light" ? "#B7C9E8" : "#3A2555",
         }}
       >
-        <h1
-          className="text-4xl font-extrabold bg-gradient-to-r from-indigo-300 to-indigo-100 bg-clip-text text-transparent"
-        >
-          💰 ExpenseFlow 
+        <h1 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-300 to-indigo-100 bg-clip-text text-transparent">
+          💰 ExpenseFlow
         </h1>
 
         <div className="flex gap-3 items-center">
-          <ThemeToggle />
+          {/* ✅ Use the real ThemeToggle with props */}
+          <ThemeToggle theme={theme} setTheme={setTheme} />
+
+          {/* Logout button */}
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
