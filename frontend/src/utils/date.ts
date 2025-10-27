@@ -140,6 +140,7 @@ export function buildCategoryTotals(expenses: any[]): Record<string, number> {
 export function buildDateTotals(
   expenses: any[],
   viewMode: ViewMode
+  
 ): Record<string, number> {
   const out: Record<string, number> = {};
   expenses.forEach((exp) => {

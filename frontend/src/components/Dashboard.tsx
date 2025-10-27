@@ -181,8 +181,8 @@ export default function Dashboard({
     [filteredExpensesForPie]
   );
   const dateTotals = useMemo(
-    () => buildDateTotals(filteredExpensesForLine, viewMode, selectedMonthYear),
-    [filteredExpensesForLine, viewMode, selectedMonthYear]
+    () => buildDateTotals(filteredExpensesForLine, viewMode),
+    [filteredExpensesForLine, viewMode]
   );
   const sortedKeys = useMemo(() => sortXAxisKeys(viewMode, dateTotals), [viewMode, dateTotals]);
 
